@@ -11,9 +11,9 @@ import java.sql.SQLException;
 public class MotoristaDao {
 
     public Motorista inserirMotorista(Motorista motorista) throws SQLException {
-        String query = "INSERT INTO Motorista(nome,cnh,veiculo,cidade_base) VALUES (?,?,?,?)";
+        String query = "INSERT INTO motorista(nome,cnh,veiculo,cidade_base) VALUES (?,?,?,?)";
 
-        try (Connection conn = Conexao.conectar();
+        try (Connection conn = (Connection) Conexao.conectar();
              PreparedStatement stmt = conn.prepareStatement(query)){
 
             stmt.setString(1,motorista.getNome());

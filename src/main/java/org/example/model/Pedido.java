@@ -1,29 +1,34 @@
 package org.example.model;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class Pedido {
 
     private int id;
-    private int clienteId;
-    private Date dataPedido;
+    private int clienteId; 
+    private LocalDate dataPedido;
     private double volumeM3;
     private double pesoKg;
     private StatusPedido status;
 
-    public Pedido() {
+    public Pedido(int clienteId, LocalDate now, Double volume_m3, Double peso_kg) {
+        this.clienteId = clienteId; 
+        this.dataPedido = now;
+        this.volumeM3 = volume_m3;
+        this.pesoKg = peso_kg;
         this.status = StatusPedido.PENDENTE;
     }
 
-    public Pedido(int clienteId, Date dataPedido, double volumeM3, double pesoKg) {
-        this.clienteId = clienteId;
+    public Pedido(int clienteId, LocalDate dataPedido, double volumeM3, double pesoKg) {
+        this.clienteId = clienteId; 
         this.dataPedido = dataPedido;
         this.volumeM3 = volumeM3;
         this.pesoKg = pesoKg;
         this.status = StatusPedido.PENDENTE;
     }
 
-    public Pedido(int id, int clienteId, Date dataPedido, double volumeM3, double pesoKg, StatusPedido status) {
+    public Pedido(int id, int clienteId, LocalDate dataPedido, double volumeM3, double pesoKg, StatusPedido status) {
         this.id = id;
         this.clienteId = clienteId;
         this.dataPedido = dataPedido;
@@ -33,34 +38,42 @@ public class Pedido {
     }
 
     public int getId() {
+
         return id;
     }
 
     public void setId(int id) {
+
         this.id = id;
     }
 
     public int getClienteId() {
+
         return clienteId;
     }
 
     public void setClienteId(int clienteId) {
+
         this.clienteId = clienteId;
     }
 
-    public Date getDataPedido() {
+    public LocalDate getDataPedido() {
+
         return dataPedido;
     }
 
     public void setDataPedido(Date dataPedido) {
-        this.dataPedido = dataPedido;
+
+        this.dataPedido = dataPedido.toLocalDate();
     }
 
     public double getVolumeM3() {
+
         return volumeM3;
     }
 
     public void setVolumeM3(double volumeM3) {
+
         this.volumeM3 = volumeM3;
     }
 

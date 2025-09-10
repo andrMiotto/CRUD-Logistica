@@ -26,6 +26,11 @@ public class Cliente {
         this.estado = estado;
     }
 
+    public Cliente(int id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
+
     public int getId() {
         return id;
     }
