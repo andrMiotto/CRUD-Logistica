@@ -1,14 +1,11 @@
 package org.example.app;
 
-import org.example.dao.ClienteDao;
-import org.example.dao.MotoristaDao;
-import org.example.dao.PedidoDao;
-import org.example.model.Cliente;
-import org.example.model.Motorista;
-import org.example.model.Pedido;
+import org.example.dao.*;
+import org.example.model.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -28,6 +25,10 @@ public class Main {
         System.out.println("1 - Cadastrar Cliente");
         System.out.println("2 - Cadastrar Motorista");
         System.out.println("3 - Criar Pedido");
+        System.out.println("4 - Gerar Entrega");
+        System.out.println("5 - Registrar Evento de Entrega");
+        System.out.println("6 - Atualizar status de Entrega");
+
 
         System.out.println("0 - Sair");
         System.out.print("Escolha uma opção: ");
@@ -52,11 +53,21 @@ public class Main {
                 break;
             }
             case 4: {
+                criarEntrega();
+                break;
+            }
 
+            case 5: {
+                registrarEvento();
                 break;
             }
 
             case 6: {
+                atualizarStatus();
+                break;
+            }
+
+            case 0: {
                 sair = true;
                 break;
             }
@@ -129,6 +140,7 @@ public class Main {
 
         System.out.println("Digite o peso em KG");
         Double peso_kg = SC.nextDouble();
+
         try {
             var pedido = new Pedido(clienteId, LocalDate.now(), volume_m3, peso_kg);
             dao.inserirPedido(pedido);
@@ -140,9 +152,110 @@ public class Main {
     }
 
 
+    public static void criarEntrega() throws SQLException {
+        System.out.println("=== GERAR ENTREGA ===");
+        var dao = new EntregaDao();
+        var pedidoDao = new PedidoDao();
+        var motoristaDao = new MotoristaDao();
+
+        List<Pedido> listaPedidos = PedidoDao.listarTodos();
+
+        System.out.println("=--- LISTA DE PEDIDOS ---=");
+        for (Pedido p : listaPedidos) {
+            System.out.println(p.getId() + " - " + p.getDataPedido());
+        }
+
+        System.out.println("Escolha o id do pedido:");
+        int pedidoId = SC.nextInt();
+
+        List<Motorista> listaMotoristas = MotoristaDao.listarTodos();
+
+        System.out.println("=--- LISTA DE MOTORISTAS ---=");
+        for (Motorista m : listaMotoristas) {
+            System.out.println(m.getId() + " - " + m.getNome());
+        }
+
+        System.out.println("Escolha o id do motorista:");
+        int motoristaId = SC.nextInt();
+
+        try {
+            Entrega entrega = new Entrega(pedidoId, motoristaId);
+            dao.criarEntrega(entrega);
+            System.out.println("Entrega gerada com sucesso!!!");
+        } catch (SQLException e) {
+            System.out.println("ERRO ao gerar entrega");
+            e.printStackTrace();
+        }
+
+
+    }
+
+
+    public static void registrarEvento() throws SQLException {
+        System.out.println("=== GERAR EVENTO ===");
+
+        var dao = new HistoricoDao();
+        var entregaDao = new EntregaDao();
+
+        List<Entrega> listaEntregas = EntregaDao.listarTodos();
+        for(Entrega e: listaEntregas ){
+            System.out.println(e.getId() + " - " + e.getPedidoId());
+        }
+
+        System.out.println("Escolha o id da entrega: ");
+        int entrega_id = SC.nextInt();
+        SC.nextLine();
+
+        System.out.println("Digite a descricao do evento ocorrido: ");
+        String descricao = SC.nextLine();
+
+        try {
+            Historico historico = new Historico(entrega_id,LocalDate.now(), descricao);
+            dao.registrarHistorico(historico);
+            System.out.println("Historico gerado com sucesso!!!");
+        } catch (SQLException e) {
+            System.out.println("ERRO ao gerar historico");
+            e.printStackTrace();
+        }
+
+    }
 
 
 
+    public static void atualizarStatus() throws SQLException{
+        System.out.println("=== ATUALIZAR STATUS DE ENTREGA ===");
+
+        var entregaDao = new EntregaDao();
+
+        List<Entrega> listaEntregas = EntregaDao.listarTodos();
+        for(Entrega e: listaEntregas ){
+            System.out.println(e.getId() + " - " + e.getPedidoId());
+        }
+
+        System.out.println("Escolha o id da entrega: ");
+        int entrega_id = SC.nextInt();
+        SC.nextLine();
+
+        System.out.println("Digite o novo status da entrega (EM_ROTA, ENTREGUE, ATRASADA): ");
+        String novoStatus = SC.nextLine();
+
+        try {
+            StatusEntrega status = StatusEntrega.valueOf(novoStatus.toUpperCase());
+
+            Entrega entrega = new Entrega();
+            entrega.setId(entrega_id);
+            entrega.setStatus(status);
+
+            entregaDao.atualizarStatus(entrega);
+            System.out.println("Entrega atualizada com sucesso!!!");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Status inválido!");
+        } catch (SQLException e) {
+            System.out.println("ERRO ao atualizar entrega");
+            e.printStackTrace();
+        }
+
+    }
 
 
     public static void inserirDadosCliente(int opcao, int id) {

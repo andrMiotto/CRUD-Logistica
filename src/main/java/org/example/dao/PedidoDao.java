@@ -1,10 +1,12 @@
 package org.example.dao;
 
+import org.example.model.Cliente;
 import org.example.model.Pedido;
 import org.example.model.StatusPedido;
 import org.example.util.Conexao;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ public class PedidoDao {
             stmt.setString(5, pedido.getStatus().name());
 
             int rowsAffected = stmt.executeUpdate();
-            
+
             if (rowsAffected > 0) {
                 try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
@@ -37,4 +39,24 @@ public class PedidoDao {
     }
 
 
+    public static List<Pedido> listarTodos() throws SQLException {
+        String query = "SELECT id, data_pedido FROM pedido";
+        List<Pedido> pedidos = new ArrayList<>();
+
+        try (Connection connection = Conexao.conectar();
+             PreparedStatement stmt = connection.prepareStatement(query)) {
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                LocalDate dataPedido = rs.getDate("data_pedido").toLocalDate();
+                Pedido pedido = new Pedido(id, dataPedido);
+                pedidos.add(pedido);
+            }
+
+        }
+
+
+        return pedidos;
+    }
 }

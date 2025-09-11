@@ -7,25 +7,42 @@ public class Entrega {
     private int motoristaId;
     private int pedidoId;
     private LocalDate data_saida;
-    private LocalDate data_entrada;
+    private LocalDate data_entrega;
     private StatusEntrega status;
 
-    public Entrega(int id, int motoristaId, int pedidoId, LocalDate data_saida, LocalDate data_entrada, StatusEntrega status) {
+
+    public Entrega(int pedidoId, int motoristaId) {
+        this.pedidoId = pedidoId;
+        this.motoristaId = motoristaId;
+        this.data_saida = LocalDate.now();
+        this.data_entrega = null;
+        this.status = StatusEntrega.EM_ROTA;
+    }
+
+    public Entrega(int id, int motoristaId, int pedidoId, LocalDate data_saida, LocalDate data_entrega, StatusEntrega status) {
         this.id = id;
         this.motoristaId = motoristaId;
         this.pedidoId = pedidoId;
         this.data_saida = data_saida;
-        this.data_entrada = data_entrada;
+        this.data_entrega = data_entrega;
         this.status = status;
     }
 
-    public Entrega(int motoristaId, int pedidoId, LocalDate data_saida, LocalDate data_entrada, StatusEntrega status) {
+    public Entrega(int motoristaId, int pedidoId, LocalDate data_saida, LocalDate data_entrega, StatusEntrega status) {
         this.motoristaId = motoristaId;
         this.pedidoId = pedidoId;
         this.data_saida = data_saida;
-        this.data_entrada = data_entrada;
+        this.data_entrega = data_entrega;
         this.status = status;
     }
+
+    public Entrega(int pedidoId, LocalDate now, String novoStatus) {
+    }
+
+    public Entrega() {
+
+    }
+
 
     public int getId() {
         return id;
@@ -59,12 +76,12 @@ public class Entrega {
         this.data_saida = data_saida;
     }
 
-    public LocalDate getData_entrada() {
-        return data_entrada;
+    public LocalDate getData_entrega() {
+        return data_entrega;
     }
 
-    public void setData_entrada(LocalDate data_entrada) {
-        this.data_entrada = data_entrada;
+    public void setData_entrega(LocalDate data_entrega) {
+        this.data_entrega = data_entrega;
     }
 
     public StatusEntrega getStatus() {

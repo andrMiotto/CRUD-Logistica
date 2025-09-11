@@ -37,6 +37,11 @@ public class Pedido {
         this.status = status;
     }
 
+    public Pedido(int id, LocalDate dataPedido) {
+        this.id = id;
+        this.dataPedido = dataPedido;
+    }
+
     public int getId() {
 
         return id;
