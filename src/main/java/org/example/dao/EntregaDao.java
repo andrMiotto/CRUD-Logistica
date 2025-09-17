@@ -83,26 +83,45 @@ public class EntregaDao {
     }
 
 
-   /* public static boolean excluirEntrega(int entregaId) throws SQLException {
-
-        try (Connection connection = Conexao.conectar()){
+    public static boolean excluirEntrega(int entregaId) throws SQLException {
+        try (Connection connection = Conexao.conectar()) {
             String checkStatusQuery = "SELECT status FROM entrega WHERE id = ?";
-
-            try (PreparedStatement stmt = connection.prepareStatement(checkStatusQuery)) {
-                stmt.setInt(1, entregaId);
-                ResultSet rs = stmt.executeQuery();
+            
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkStatusQuery)) {
+                checkStmt.setInt(1, entregaId);
+                ResultSet rs = checkStmt.executeQuery();
+                
                 if (!rs.next()) {
+                    System.out.println("Entrega não encontrada com ID: " + entregaId);
                     return false;
                 }
 
                 String status = rs.getString("status");
-                if (status.equals("ENTREGUE")) {
+                if ("ENTREGUE".equals(status)) {
+                    System.out.println("Não é possível excluir uma entrega já finalizada (status: ENTREGUE)");
                     return false;
                 }
             }
 
+            String deleteHistoricoQuery = "DELETE FROM historico WHERE entrega_id = ?";
+            try (PreparedStatement historicoStmt = connection.prepareStatement(deleteHistoricoQuery)) {
+                historicoStmt.setInt(1, entregaId);
+                historicoStmt.executeUpdate();
+            }
+
+            String deleteEntregaQuery = "DELETE FROM entrega WHERE id = ?";
+            try (PreparedStatement entregaStmt = connection.prepareStatement(deleteEntregaQuery)) {
+                entregaStmt.setInt(1, entregaId);
+                int rowsAffected = entregaStmt.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    System.out.println("Entrega excluída com sucesso!");
+                    return true;
+                } else {
+                    System.out.println("Erro ao excluir entrega.");
+                    return false;
+                }
+            }
         }
-
-
-    }*/
+    }
 }

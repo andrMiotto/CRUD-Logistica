@@ -51,5 +51,50 @@ public class ClienteDao {
         return clientes;
     }
 
+    public static boolean excluirCliente(int clienteId) throws SQLException {
+        try (Connection connection = Conexao.conectar()) {
+            String checkClienteQuery = "SELECT id FROM cliente WHERE id = ?";
+            
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkClienteQuery)) {
+                checkStmt.setInt(1, clienteId);
+                ResultSet rs = checkStmt.executeQuery();
+                
+                if (!rs.next()) {
+                    System.out.println("Cliente não encontrado com ID: " + clienteId);
+                    return false;
+                }
+            }
+
+            String checkPedidosQuery = "SELECT COUNT(*) FROM pedido WHERE cliente_id = ?";
+            try (PreparedStatement pedidosStmt = connection.prepareStatement(checkPedidosQuery)) {
+                pedidosStmt.setInt(1, clienteId);
+                ResultSet rs = pedidosStmt.executeQuery();
+                
+                if (rs.next()) {
+                    int countPedidos = rs.getInt(1);
+                    if (countPedidos > 0) {
+                        System.out.println("Não é possível excluir o cliente. Existem " + countPedidos + " pedidos associados a este cliente.");
+                        System.out.println("Primeiro exclua ou cancele os pedidos antes de excluir o cliente.");
+                        return false;
+                    }
+                }
+            }
+
+            String deleteClienteQuery = "DELETE FROM cliente WHERE id = ?";
+            try (PreparedStatement clienteStmt = connection.prepareStatement(deleteClienteQuery)) {
+                clienteStmt.setInt(1, clienteId);
+                int rowsAffected = clienteStmt.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    System.out.println("Cliente excluído com sucesso!");
+                    return true;
+                } else {
+                    System.out.println("Erro ao excluir cliente.");
+                    return false;
+                }
+            }
+        }
+    }
+
 }
 

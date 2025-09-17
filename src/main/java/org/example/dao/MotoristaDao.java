@@ -56,4 +56,50 @@ public class MotoristaDao {
         return motoristas;
 
     }
+
+    public static boolean excluirMotorista(int motoristaId) throws SQLException {
+        try (Connection connection = Conexao.conectar()) {
+
+            String checkMotoristaQuery = "SELECT id FROM motorista WHERE id = ?";
+            
+            try (PreparedStatement checkStmt = connection.prepareStatement(checkMotoristaQuery)) {
+                checkStmt.setInt(1, motoristaId);
+                ResultSet rs = checkStmt.executeQuery();
+                
+                if (!rs.next()) {
+                    System.out.println("Motorista não encontrado com ID: " + motoristaId);
+                    return false;
+                }
+            }
+
+            String checkEntregasQuery = "SELECT COUNT(*) FROM entrega WHERE motorista_id = ?";
+            try (PreparedStatement entregasStmt = connection.prepareStatement(checkEntregasQuery)) {
+                entregasStmt.setInt(1, motoristaId);
+                ResultSet rs = entregasStmt.executeQuery();
+                
+                if (rs.next()) {
+                    int countEntregas = rs.getInt(1);
+                    if (countEntregas > 0) {
+                        System.out.println("Não é possível excluir o motorista. Existem " + countEntregas + " entrega associada a este motorista.");
+                        System.out.println("Primeiro exclua ou finalize as entregas antes de excluir o motorista.");
+                        return false;
+                    }
+                }
+            }
+
+            String deleteMotoristaQuery = "DELETE FROM motorista WHERE id = ?";
+            try (PreparedStatement motoristaStmt = connection.prepareStatement(deleteMotoristaQuery)) {
+                motoristaStmt.setInt(1, motoristaId);
+                int rowsAffected = motoristaStmt.executeUpdate();
+                
+                if (rowsAffected > 0) {
+                    System.out.println("Motorista excluído com sucesso!");
+                    return true;
+                } else {
+                    System.out.println("Erro ao excluir motorista.");
+                    return false;
+                }
+            }
+        }
+    }
 }

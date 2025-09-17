@@ -34,6 +34,9 @@ public class Main {
         System.out.println("11 - Relatório: Entregas Atrasadas por Cidade");
         System.out.println("12 - Buscar Pedido por CPF/CNPJ do Cliente");
         System.out.println("13 - Cancelar Pedido");
+        System.out.println("14 - Excluir Entrega");
+        System.out.println("15 - Excluir Cliente");
+        System.out.println("16 - Excluir Motorista");
 
 
         System.out.println("0 - Sair");
@@ -110,6 +113,16 @@ public class Main {
 
             case 14: {
                 excluirEntrega();
+                break;
+            }
+
+            case 15: {
+                excluirCliente();
+                break;
+            }
+
+            case 16: {
+                excluirMotorista();
                 break;
             }
 
@@ -426,18 +439,95 @@ public class Main {
 
 
     public static void excluirEntrega() throws SQLException {
-        EntregaDao dao = new EntregaDao();
-
+        System.out.println("=== EXCLUIR ENTREGA ===");
+        
         List<Entrega> listaEntregas = EntregaDao.listarTodos();
+        
+        if (listaEntregas.isEmpty()) {
+            System.out.println("Nenhuma entrega encontrada.");
+            return;
+        }
+        
+        System.out.println("=--- LISTA DE ENTREGAS ---=");
         for (Entrega e : listaEntregas) {
-            System.out.println(e.getId() + " - " + e.getPedidoId());
+            System.out.println(e.getId() + " - Pedido ID: " + e.getPedidoId());
         }
 
-        System.out.println("Escolha o id da entrega: ");
+        System.out.print("Digite o ID da entrega que deseja excluir: ");
         int entrega_id = SC.nextInt();
         SC.nextLine();
+        
+        try {
+            boolean sucesso = EntregaDao.excluirEntrega(entrega_id);
+            if (!sucesso) {
+                System.out.println("Falha ao excluir entrega.");
+            }
+        } catch (SQLException e) {
+            System.out.println("ERRO ao excluir entrega:");
+            e.printStackTrace();
+        }
     }
 
+
+    public static void excluirCliente() throws SQLException {
+        System.out.println("=== EXCLUIR CLIENTE ===");
+        
+        List<Cliente> listaClientes = ClienteDao.listarTodos();
+        
+        if (listaClientes.isEmpty()) {
+            System.out.println("Nenhum cliente encontrado.");
+            return;
+        }
+        
+        System.out.println("=--- LISTA DE CLIENTES ---=");
+        for (Cliente c : listaClientes) {
+            System.out.println(c.getId() + " - " + c.getNome());
+        }
+
+        System.out.print("Digite o ID do cliente que deseja excluir: ");
+        int cliente_id = SC.nextInt();
+        SC.nextLine();
+        
+        try {
+            boolean sucesso = ClienteDao.excluirCliente(cliente_id);
+            if (!sucesso) {
+                System.out.println("Falha ao excluir cliente.");
+            }
+        } catch (SQLException e) {
+            System.out.println("ERRO ao excluir cliente:");
+            e.printStackTrace();
+        }
+    }
+
+    public static void excluirMotorista() throws SQLException {
+        System.out.println("=== EXCLUIR MOTORISTA ===");
+        
+        List<Motorista> listaMotoristas = MotoristaDao.listarTodos();
+        
+        if (listaMotoristas.isEmpty()) {
+            System.out.println("Nenhum motorista encontrado.");
+            return;
+        }
+        
+        System.out.println("=--- LISTA DE MOTORISTAS ---=");
+        for (Motorista m : listaMotoristas) {
+            System.out.println(m.getId() + " - " + m.getNome());
+        }
+
+        System.out.print("Digite o ID do motorista que deseja excluir: ");
+        int motorista_id = SC.nextInt();
+        SC.nextLine();
+        
+        try {
+            boolean sucesso = MotoristaDao.excluirMotorista(motorista_id);
+            if (!sucesso) {
+                System.out.println("Falha ao excluir motorista.");
+            }
+        } catch (SQLException e) {
+            System.out.println("ERRO ao excluir motorista:");
+            e.printStackTrace();
+        }
+    }
 
     public static void inserirDadosCliente(int opcao, int id) {
         var dao = new ClienteDao();
@@ -469,7 +559,6 @@ public class Main {
             }
 
             case 2 -> {
-                //atualizar
             }
 
         }
