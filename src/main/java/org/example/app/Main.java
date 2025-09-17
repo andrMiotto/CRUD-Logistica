@@ -5,7 +5,6 @@ import org.example.model.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -28,6 +27,13 @@ public class Main {
         System.out.println("4 - Gerar Entrega");
         System.out.println("5 - Registrar Evento de Entrega");
         System.out.println("6 - Atualizar status de Entrega");
+        System.out.println("7 - Listar Todas as Entregas com Cliente e Motorista");
+        System.out.println("8 - Relatório: Total de Entregas por Motorista");
+        System.out.println("9 - Relatório: Clientes com Maior Volume Entregue");
+        System.out.println("10 - Relatório: Pedidos Pendentes por Estado");
+        System.out.println("11 - Relatório: Entregas Atrasadas por Cidade");
+        System.out.println("12 - Buscar Pedido por CPF/CNPJ do Cliente");
+        System.out.println("13 - Cancelar Pedido");
 
 
         System.out.println("0 - Sair");
@@ -64,6 +70,46 @@ public class Main {
 
             case 6: {
                 atualizarStatus();
+                break;
+            }
+
+            case 7: {
+                listarEntregasCM();
+                break;
+            }
+
+            case 8: {
+                relEntregasPorMotorista();
+                break;
+
+            }
+
+            case 9: {
+                relatorioClientesMaisEntregas();
+                break;
+            }
+            case 10: {
+                relatorioPendentesEstado();
+                break;
+            }
+
+            case 11: {
+                relatorioEntregasAtrasadasCidade();
+                break;
+            }
+
+            case 12: {
+                buscarPedidoPorCpfCnpj();
+                break;
+            }
+
+            case 13: {
+                cancelarPedido();
+                break;
+            }
+
+            case 14: {
+                excluirEntrega();
                 break;
             }
 
@@ -142,7 +188,7 @@ public class Main {
         Double peso_kg = SC.nextDouble();
 
         try {
-            var pedido = new Pedido(clienteId, LocalDate.now(), volume_m3, peso_kg);
+            var pedido = new Pedido();
             dao.inserirPedido(pedido);
             System.out.println("Pedido inserido com sucesso!!!");
         } catch (SQLException e) {
@@ -198,7 +244,7 @@ public class Main {
         var entregaDao = new EntregaDao();
 
         List<Entrega> listaEntregas = EntregaDao.listarTodos();
-        for(Entrega e: listaEntregas ){
+        for (Entrega e : listaEntregas) {
             System.out.println(e.getId() + " - " + e.getPedidoId());
         }
 
@@ -210,7 +256,7 @@ public class Main {
         String descricao = SC.nextLine();
 
         try {
-            Historico historico = new Historico(entrega_id,LocalDate.now(), descricao);
+            Historico historico = new Historico(entrega_id, LocalDate.now(), descricao);
             dao.registrarHistorico(historico);
             System.out.println("Historico gerado com sucesso!!!");
         } catch (SQLException e) {
@@ -221,14 +267,13 @@ public class Main {
     }
 
 
-
-    public static void atualizarStatus() throws SQLException{
+    public static void atualizarStatus() throws SQLException {
         System.out.println("=== ATUALIZAR STATUS DE ENTREGA ===");
 
         var entregaDao = new EntregaDao();
 
         List<Entrega> listaEntregas = EntregaDao.listarTodos();
-        for(Entrega e: listaEntregas ){
+        for (Entrega e : listaEntregas) {
             System.out.println(e.getId() + " - " + e.getPedidoId());
         }
 
@@ -255,6 +300,142 @@ public class Main {
             e.printStackTrace();
         }
 
+    }
+
+
+    public static void listarEntregasCM() throws SQLException {
+        var entregaCDAO = new EntregaCompletaDao();
+
+        List<EntregaCompleta> listaEntregaCM = EntregaCompletaDao.listarEntregasCM();
+        System.out.println("ID entrega | Nome do motorista");
+        System.out.println("-------------------------------");
+        for (EntregaCompleta e : listaEntregaCM) {
+            System.out.println(e.getEntregaId() + " - " + e.getMotoristaNome());
+        }
+    }
+
+
+    public static void relEntregasPorMotorista() throws SQLException {
+        List<EntregaCompleta> relatorio = EntregaCompletaDao.relatorioEntregasPorMotorista();
+
+        System.out.println("Relatório: Total de Entregas por Motorista");
+        System.out.println("------------------------------------------");
+
+        for (EntregaCompleta e : relatorio) {
+            System.out.println(e.getMotoristaNome() + " -> " + e.getTotalEntregas() + " entregas");
+        }
+
+    }
+
+
+    public static void relatorioClientesMaisEntregas() throws SQLException {
+        List<EntregaCompleta> relatorio = EntregaCompletaDao.relatorioClientesMaisEntregas();
+        System.out.println("Relatório: Cliente com maior numero de entregas");
+        System.out.println("------------------------------------------");
+
+        if (relatorio.isEmpty()) {
+            System.out.println("Nenhuma entrega concluída no momento.");
+        } else {
+            for (EntregaCompleta e : relatorio) {
+                System.out.println(e.getClienteNome() + " -> " + e.getVolumeTotal() + " m³");
+            }
+        }
+
+    }
+
+
+    public static void relatorioPendentesEstado() throws SQLException {
+        List<EntregaCompleta> relatorio = EntregaCompletaDao.relatorioPendentesEstado();
+        System.out.println("Relatório: Pedidos Pendentes por Estado");
+        System.out.println("------------------------------------------");
+
+        for (EntregaCompleta e : relatorio) {
+            System.out.println(e.getEstado() + "->" + e.getTotalEntregas());
+        }
+
+    }
+
+
+    public static void relatorioEntregasAtrasadasCidade() throws SQLException {
+        List<EntregaCompleta> relatorio = EntregaCompletaDao.relatorioEntregasAtrasadasCidade();
+        System.out.println("Relatório: Entregas Atrasadas por Cidade");
+        System.out.println("------------------------------------------");
+
+        for (EntregaCompleta e : relatorio) {
+            System.out.println(e.getCidade() + " -> " + e.getTotal_entregas_atrasadas());
+        }
+
+
+    }
+
+
+    public static void buscarPedidoPorCpfCnpj() throws SQLException {
+
+
+        List<Cliente> clientes = ClienteDao.listarTodos();
+
+        System.out.println("=--- LISTA DE CLIENTES ---=");
+        for (Cliente c : clientes) {
+            System.out.println(c.getId() + " - " + c.getNome());
+        }
+
+        System.out.println("Escolha o id do cliente:");
+        int clienteId = SC.nextInt();
+
+        Cliente clienteSelecionado = null;
+        for (Cliente c : clientes) {
+            if (c.getId() == clienteId) {
+                clienteSelecionado = c;
+                break;
+            }
+        }
+
+        List<Pedido> pedidos = PedidoDao.buscarPedidosPorCliente(clienteSelecionado.getCpf_cnpj());
+        System.out.println("=== Pedidos do Cliente " + clienteSelecionado.getNome() + " ===");
+        System.out.println("ID | Data | Volume(m3) | Peso(kg) | Status");
+        System.out.println("------------------------------------------");
+        for (Pedido p : pedidos) {
+            System.out.println(p.getId() + " | " +
+                    p.getDataPedido() + " | " +
+                    p.getVolumeM3() + " | " +
+                    p.getPesoKg() + " | " +
+                    p.getStatus());
+        }
+
+    }
+
+    public static void cancelarPedido() throws SQLException {
+        var pedidoDao = new PedidoDao();
+
+        List<Pedido> listaPedidos = PedidoDao.listarTodos();
+
+        System.out.println("=--- LISTA DE PEDIDOS ---=");
+        for (Pedido p : listaPedidos) {
+            System.out.println(p.getId() + " - " + p.getDataPedido());
+        }
+
+        System.out.print("Digite o ID do pedido que deseja cancelar: ");
+        int pedidoId = SC.nextInt();
+        SC.nextLine();
+
+        PedidoDao.cancelarPedido(pedidoId);
+
+        System.out.println("Pedido cancelado com sucesso!");
+
+    }
+
+
+    public static void excluirEntrega() throws SQLException {
+        EntregaDao dao = new EntregaDao();
+
+        List<Entrega> listaEntregas = EntregaDao.listarTodos();
+        for (Entrega e : listaEntregas) {
+            System.out.println(e.getId() + " - " + e.getPedidoId());
+        }
+
+        System.out.println("Escolha o id da entrega: ");
+        int entrega_id = SC.nextInt();
+        SC.nextLine();
     }
 
 

@@ -1,6 +1,5 @@
 package org.example.dao;
 
-import org.example.model.Cliente;
 import org.example.model.Entrega;
 import org.example.util.Conexao;
 
@@ -82,4 +81,28 @@ public class EntregaDao {
 
 
     }
+
+
+   /* public static boolean excluirEntrega(int entregaId) throws SQLException {
+
+        try (Connection connection = Conexao.conectar()){
+            String checkStatusQuery = "SELECT status FROM entrega WHERE id = ?";
+
+            try (PreparedStatement stmt = connection.prepareStatement(checkStatusQuery)) {
+                stmt.setInt(1, entregaId);
+                ResultSet rs = stmt.executeQuery();
+                if (!rs.next()) {
+                    return false;
+                }
+
+                String status = rs.getString("status");
+                if (status.equals("ENTREGUE")) {
+                    return false;
+                }
+            }
+
+        }
+
+
+    }*/
 }

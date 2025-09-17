@@ -1,6 +1,5 @@
 package org.example.dao;
 
-import org.example.model.Cliente;
 import org.example.model.Pedido;
 import org.example.model.StatusPedido;
 import org.example.util.Conexao;
@@ -59,4 +58,50 @@ public class PedidoDao {
 
         return pedidos;
     }
+
+
+    public static List<Pedido> buscarPedidosPorCliente(String cpfCnpj) throws SQLException {
+        List<Pedido> pedidos = new ArrayList<>();
+
+        String query = "SELECT p.id, p.data_pedido, p.volume_m3, p.peso_kg, p.status " +
+                "FROM pedido p " +
+                "JOIN cliente c ON p.cliente_id = c.id " +
+                "WHERE c.cpf_cnpj = ?;";
+
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, cpfCnpj);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Pedido p = new Pedido();
+                    p.setId(rs.getInt("id"));
+                    p.setDataPedido(rs.getDate("data_pedido").toLocalDate());
+                    p.setVolumeM3(rs.getDouble("volume_m3"));
+                    p.setPesoKg(rs.getDouble("peso_kg"));
+                    p.setStatus(StatusPedido.valueOf(rs.getString("status")));
+                    pedidos.add(p);
+                }
+            }
+        }
+
+        return pedidos;
+    }
+
+
+    public static void cancelarPedido(int pedidoId) throws SQLException {
+        String query = "UPDATE pedido SET status = 'CANCELADO' WHERE id = ?";
+        try (Connection conn = Conexao.conectar();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, pedidoId);
+            stmt.executeUpdate();
+        }
+
+    }
+
+
 }
+
+
+

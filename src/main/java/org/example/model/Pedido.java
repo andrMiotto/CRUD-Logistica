@@ -1,6 +1,5 @@
 package org.example.model;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 public class Pedido {
@@ -12,13 +11,15 @@ public class Pedido {
     private double pesoKg;
     private StatusPedido status;
 
-    public Pedido(int clienteId, LocalDate now, Double volume_m3, Double peso_kg) {
-        this.clienteId = clienteId; 
-        this.dataPedido = now;
-        this.volumeM3 = volume_m3;
-        this.pesoKg = peso_kg;
+    public Pedido() {
+        this.clienteId = 0;
+        this.dataPedido = LocalDate.now();
+        this.volumeM3 = 0;
+        this.pesoKg = 0;
         this.status = StatusPedido.PENDENTE;
     }
+
+
 
     public Pedido(int clienteId, LocalDate dataPedido, double volumeM3, double pesoKg) {
         this.clienteId = clienteId; 
@@ -40,6 +41,10 @@ public class Pedido {
     public Pedido(int id, LocalDate dataPedido) {
         this.id = id;
         this.dataPedido = dataPedido;
+    }
+
+    public Pedido(int id, LocalDate dataPedido, double volumeM3, double pesoKg, String status, String clienteNome) {
+
     }
 
     public int getId() {
@@ -67,9 +72,8 @@ public class Pedido {
         return dataPedido;
     }
 
-    public void setDataPedido(Date dataPedido) {
-
-        this.dataPedido = dataPedido.toLocalDate();
+    public void setDataPedido(LocalDate dataPedido) {
+        this.dataPedido = dataPedido;
     }
 
     public double getVolumeM3() {
